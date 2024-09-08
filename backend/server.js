@@ -4,84 +4,20 @@
 import express from "express"; //to be able to use this, need to add <"type": "module", > in package.json
 import dotenv from "dotenv"; //to be able to access the .env file
 import { connectDB } from "./config/db.js";
-import Product from "./models/product.model.js";
+import productRoutes from "./routes/product.route.js";
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT;
 
 app.use(express.json()); //middleware that allows us to parse the req body
 
-//GET PRODUCT, GET method
-app.get("/api/products", async (req, res) =>{
-    try {
-        const products = await Product.find({}); // empty obj <{}> means fetch all products we hv in db
-        res.status(200).json({ success: true, data: products});
-    } catch (error) {
-        console.log("error in fetching products:", error.message);
-        res.status(500).json({ success: false, message: "Server Error"})
-        
-    }
-})
+app.use("/api/products", productRoutes);
 
-//CREATE PRODUCT
-//if we want to create something, use "post" method
-//Route to create a new product
-app.post("/api/products", async (req,res) => {
-    const product = req.body; //user will send this data
-
-    // Check if required fills are provided
-    if(!product.name || !product.price || !product.image) {
-        return res.status(400).json({ success:false, message: "Please provide all fields"});
-    }
-
-    // Create new product instance
-    const newProduct = new Product(product)
-
-    try {
-        //save new product to the database
-        await newProduct.save();
-        res.status(201).json({ success: true, data: newProduct});
-    } catch (error) {
-        console.error("Error in Create product:", error.message);
-        res.status(500).json({ success: false, message: "Server Error"});
-    }
-});
-
-//put   - when updating ALL fields on the resource
-//patch - when updating SOME fields on the resource
-app.put("/api/products/:id", async (req, res) => {
-    const { id } = req.params;
-    const product = req.body;
-    
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({ success:false, message: "Invalid Product Id"});
-    }
-
-    try {
-        const updatedProduct = await Product.findByIdAndUpdate(id, product, { new:true });
-        res.status(200).json({ success: true, data: updatedProduct });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error"});
-    }
-});
-
-//DELETE PRODUCT
-app.delete("/api/products/:id", async (req,res) => {
-    const { id } = req.params;
-    
-    try {
-        await Product.findByIdAndDelete(id);
-        res.status(200).json({ success: true, message: "Product Deleted"});
-    } catch (error) {
-        console.log("error in deleting product", error.message);
-        res.status(404).json({ success: false, message: "Product not found"});
-    }
-});
-
-app.listen(5000, () => {
+app.listen(PORT, () => {
     connectDB();
-    console.log("Server started at http://localhost:5000");
+    console.log("Server started at http://localhost:" + PORT);
 });
 
 
