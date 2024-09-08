@@ -10,7 +10,7 @@ function App() {
       <Navbar /> {/* Put above Routes, cuz every page has Navbar */}
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/create" element={<createPage />} />
+        <Route path="/create" element={<CreatePage />} />
       </Routes>
     </Box>
   );
