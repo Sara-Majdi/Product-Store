@@ -31,6 +31,8 @@ const CreatePage = () => {
         isClosable: true
       })
     }
+    /* Reset the state*/
+    setNewProduct({ name: "", price: "", image: ""});
   };
 
   return (
